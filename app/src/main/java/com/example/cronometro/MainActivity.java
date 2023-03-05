@@ -31,13 +31,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        int currentTheme = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if(currentTheme == Configuration.UI_MODE_NIGHT_YES) {
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.md_theme_dark_background));
-        } else {
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.md_theme_light_background));
-        }
-
         tvTime = (TextView) findViewById(R.id.tvTime);
         tvFlags = (TextView) findViewById(R.id.tvFlags);
         svFlags = (ScrollView) findViewById(R.id.svFlags);
@@ -53,15 +46,17 @@ public class MainActivity extends AppCompatActivity {
                     timerHandler.post(timerRunnable);
                     isStart = true;
                     btnPlay.setText("Pausar");
+
+                    if (btnReplay.getVisibility() == View.GONE) {
+                        Animation slideLeftAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_left);
+                        Animation slideRightAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_right);
+
+                        btnReplay.startAnimation(slideLeftAnimation);
+                        btnFlag.startAnimation(slideRightAnimation);
+                    }
+
                     btnReplay.setVisibility(View.VISIBLE);
                     btnFlag.setVisibility(View.VISIBLE);
-
-                    Animation slideLeftAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_left);
-                    Animation slideRightAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_right);
-
-                    btnReplay.startAnimation(slideLeftAnimation);
-                    btnFlag.startAnimation(slideRightAnimation);
-
                 } else {
                     if(isPaused == false) {
                         timerHandler.removeCallbacks(timerRunnable);
@@ -81,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 timerHandler.removeCallbacks(timerRunnable);
-                tvTime.setText("0:00:00");
-                btnPlay.setText("Iniciar");
+                tvTime.setText(R.string.tv_time);
+                btnPlay.setText(R.string.btn_start);
                 btnReplay.setVisibility(View.GONE);
                 btnFlag.setVisibility(View.GONE);
                 isStart = false;
@@ -90,6 +85,13 @@ public class MainActivity extends AppCompatActivity {
                 flagsText.setLength(0);
                 counter = 1;
                 tvFlags.setText("");
+
+                if (svFlags.getVisibility() == View.VISIBLE) {
+                    Animation anim = AnimationUtils.loadAnimation(MainActivity.this, R.anim.fade_out);
+                    svFlags.startAnimation(anim);
+                    tvTime.startAnimation(anim);
+                    svFlags.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -97,7 +99,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isStart) {
-                    svFlags.setVisibility(View.VISIBLE);
+                    if (svFlags.getVisibility() == View.GONE) {
+                        Animation anim = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_bottom);
+                        svFlags.startAnimation(anim);
+                        svFlags.setVisibility(View.VISIBLE);
+                        tvTime.startAnimation(anim);
+                    }
+
                     flagsText.append("#" + counter + "\t\t\t" + tvTime.getText() + "\n");
                     counter++;
                     tvFlags.setText(flagsText.toString());
@@ -115,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             int minutes = seconds / 60;
             seconds = seconds % 60;
 
-            tvTime.setText(String.format("%d:%02d:%02d", minutes, seconds, milliseconds));
+            tvTime.setText(String.format("%d:%02d.%02d", minutes, seconds, milliseconds));
 
             timerHandler.postDelayed(this, 50);
         }

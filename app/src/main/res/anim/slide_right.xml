@@ -3,5 +3,6 @@
     <translate xmlns:android="http://schemas.android.com/apk/res/android"
         android:fromXDelta="-300"
         android:toXDelta="0"
-        android:duration="200" />
+        android:duration="200"
+        android:interpolator="@android:interpolator/accelerate_decelerate" />
 </set>
