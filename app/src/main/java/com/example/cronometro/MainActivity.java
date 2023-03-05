@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnPlay, btnReplay, btnFlag;
     private ScrollView svFlags;
     private boolean isPaused = false, isStart = false;
-    private long startTime = 0L;
+    private long startTime = 0L, elapsedTime = 0L;
     private int counter = 1;
     private Handler timerHandler = new Handler();
     private StringBuilder flagsText = new StringBuilder();
@@ -60,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if(isPaused == false) {
                         timerHandler.removeCallbacks(timerRunnable);
+                        elapsedTime = System.currentTimeMillis() - startTime;
                         btnPlay.setText("Reanudar");
                         isPaused = true;
                     } else {
-                        startTime = System.currentTimeMillis() - (tvTime.getText().toString().equalsIgnoreCase("0:00") ? 0 : getTimeInMillis(tvTime.getText().toString()));
+                        startTime = System.currentTimeMillis() - elapsedTime;
                         timerHandler.post(timerRunnable);
                         btnPlay.setText("Pausar");
                         isPaused = false;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 btnReplay.setVisibility(View.GONE);
                 btnFlag.setVisibility(View.GONE);
                 isStart = false;
+                isPaused = false;
 
                 flagsText.setLength(0);
                 counter = 1;
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         btnFlag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isStart) {
+                if (isStart && !isPaused) {
                     if (svFlags.getVisibility() == View.GONE) {
                         Animation anim = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_bottom);
                         svFlags.startAnimation(anim);
